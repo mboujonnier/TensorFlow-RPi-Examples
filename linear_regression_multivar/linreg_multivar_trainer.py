@@ -133,21 +133,28 @@ def main(argv=None):
 
       print("Training cost=", training_cost, "W=", sess.run(W), '\n')
 
+      X2 = tf.placeholder(tf.float32, [3, 1], name="input_node/X2")
+      h = tf.matmul(W, X2)
+      tf.add(h, 0, name="output_price")
+      tf.add(original_means, 0, name="output_means")
+      tf.add(original_stds, 0, name="output_stds")
+
       # important, time to freeze the model now, you need to specify all the output node names !
-      freeze_my_graph(sess, "output_weight,output_cost,output_training_cost")
+      freeze_my_graph(sess, "output_weight,output_cost,output_training_cost,output_price,output_means,output_stds")
       print('Done exporting!')
 
       # infering model
       bedrooms = 3.0
       surface = 1650.0
       model_test = [[1],[surface],[bedrooms]]
+
       # normalized inputs
       for f in range(1, n_features):
           model_test[f] = ( model_test[f] - original_means[f]) / (original_stds[f])
 
-      price = sess.run(tf.matmul(sess.run(W), model_test))
+      price = sess.run(h, feed_dict={X2: model_test})
 
-      print("Estimated price for an house of ", surface, " sqfeet and ", bedrooms, " bedrooms: ", price[0,0], " dollars")      
+      print("Estimated price for an house of ", surface, " sqfeet and ", bedrooms, " bedrooms: ", price[0,0], " dollars")
 
 if __name__ == '__main__':
   tf.app.run()
