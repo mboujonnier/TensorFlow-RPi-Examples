@@ -101,7 +101,7 @@ def main(argv=None):
   pred = tf.matmul(W, X)
 
   # Mean square error
-  cost = tf.reduce_sum(tf.square(pred-Y)) / (2*N)
+  cost = tf.reduce_sum(tf.square(pred-Y), name="output_cost") / (2*N)
 
   # Use a Gradient descent to minimize the cost
   optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
@@ -127,17 +127,19 @@ def main(argv=None):
 
       print("Optimization Finished!")
       training_cost = sess.run(cost, feed_dict={X: train_X, Y: train_Y, N: n_samples})
-
-      tf.add(cost, 0, name="output_cost")   # dumb way to add the cost to the graph, any better way ?
-      tf.add(training_cost, 0, name="output_training_cost") # dumb way to save the training cost value to the graph, any better way ?
+      tf.convert_to_tensor(training_cost, name="output_training_cost") #way to save the training cost value to the graph, any better way ?
 
       print("Training cost=", training_cost, "W=", sess.run(W), '\n')
 
-      X2 = tf.placeholder(tf.float32, [3, 1], name="input_node/X2")
-      h = tf.matmul(W, X2)
-      tf.add(h, 0, name="output_price")
-      tf.add(original_means, 0, name="output_means")
-      tf.add(original_stds, 0, name="output_stds")
+      OneHouseX = tf.placeholder(tf.float32, [3, 1], name="input_node/OneHouseX")
+      h = tf.matmul(W, OneHouseX, name="output_price")
+
+      tf.convert_to_tensor(original_means, name="output_means")
+
+      #test = tf.get_default_graph().get_tensor_by_name("output_means:0")
+      #print(test)
+
+      tf.convert_to_tensor(original_stds, name="output_stds")
 
       # important, time to freeze the model now, you need to specify all the output node names !
       freeze_my_graph(sess, "output_weight,output_cost,output_training_cost,output_price,output_means,output_stds")
@@ -152,7 +154,7 @@ def main(argv=None):
       for f in range(1, n_features):
           model_test[f] = ( model_test[f] - original_means[f]) / (original_stds[f])
 
-      price = sess.run(h, feed_dict={X2: model_test})
+      price = sess.run(h, feed_dict={OneHouseX: model_test})
 
       print("Estimated price for an house of ", surface, " sqfeet and ", bedrooms, " bedrooms: ", price[0,0], " dollars")
 

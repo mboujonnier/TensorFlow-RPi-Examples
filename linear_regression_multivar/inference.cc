@@ -69,34 +69,35 @@ int main(int argc, char* argv[])
   float bedrooms = 3.0;
 
   // get means and std deviations
-  Status run_status = session->Run({}, {{"output_means"}}, {}, &outputs);
+	LOG(INFO) << "Retrieve means and std deviations from the model to normalize inputs";
+  Status run_status = session->Run({}, {{"output_means"}, {"output_stds"}}, {}, &outputs);
   if (!run_status.ok())
 	{
 		LOG(ERROR) << "Running model failed: " << run_status;
 		return -1;
 	}
-  auto output_means = 	outputs[0].flat<float>();
-  //auto output_std = 	outputs[1].flat<float>();
-  LOG(INFO) << "means: " << output_means(0);
-  //LOG(INFO) << "std: " << output_std(0);
 
-	LOG(INFO) << "Creating a tensor: ";
+  auto output_means = 	outputs[0].flat<double>();
+  auto output_std = 	outputs[1].flat<double>();
+  LOG(INFO) << "means: [" << output_means(0) << ", " << output_means(1) << ", " << output_means(2) <<"]";
+	LOG(INFO) << "std dev: [" << output_std(0) << ", " << output_std(1) << ", " << output_std(2) <<"]";
+
+	LOG(INFO) << "Creating a test tensor and normalize it";
   inputs_tensor_mapped(0, 0) = 1.0;
-  inputs_tensor_mapped(1, 0) = surface;
-  inputs_tensor_mapped(2, 0) = bedrooms;
+  inputs_tensor_mapped(1, 0) = (surface - output_means(1))/output_std(1);
+  inputs_tensor_mapped(2, 0) = (bedrooms - output_means(2))/output_std(2);
 
 	LOG(INFO) << "Run the model";
 	// virtual Status tensorflow::Session::Run(const std::vector< std::pair< string, Tensor > > &inputs, const std::vector< string > &output_tensor_names,	const std::vector< string > &target_node_names,	std::vector< Tensor > *outputs)=0
-	run_status = session->Run({{"input_node/X2", inputs_tensor}}, {{"output_price"}}, {}, &outputs);
+	run_status = session->Run({{"input_node/OneHouseX", inputs_tensor}}, {{"output_price"}}, {}, &outputs);
 	if (!run_status.ok())
 	{
 		LOG(ERROR) << "Running model failed: " << run_status;
 		return -1;
 	}
 
-	LOG(INFO) << "Estimated price for an house of " << surface << " sqfeet and " << bedrooms << " bedrooms:";
 	auto output_price= 	outputs[0].flat<float>();
-	LOG(INFO) << "price: " << output_price(0);
+	LOG(INFO) << "Estimated price for an house of " << surface << " sqfeet and " << bedrooms << " bedrooms: $" << output_price(0);
 
 	session->Close();
 
