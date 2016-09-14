@@ -24,12 +24,12 @@ On the Python environment:
 
 On the Raspberry Pi
  1. Copy the folder linear_regression in ``{tensorflow_root}/tensorflow/contrib/pi_examples/``
- 2. at ``{tensorflow_root}`` call: ``make -f tensorflow/contrib/pi_examples/linear__multivar_regression/Makefile``
- 3. copy the exported model (data/) in ``{tensorflow_root}/tensorflow/contrib/pi_examples/linear__multivar_regression/data/``
+ 2. at ``{tensorflow_root}`` call: ``make -f tensorflow/contrib/pi_examples/linear_multivar_regression/Makefile``
+ 3. copy the exported model (data/) in ``{tensorflow_root}/tensorflow/contrib/pi_examples/linear_multivar_regression/data/``
  4. run the inferer: 
  
  ```
- cd {tensorflow_root}/tensorflow/contrib/pi_examples/linear__multivar_regression
+ cd {tensorflow_root}/tensorflow/contrib/pi_examples/linear_multivar_regression
  ./gen/bin/inference
  ````
 
