@@ -83,7 +83,7 @@ def main(argv=None):
   pred = tf.add(tf.mul(X, W), b)
 
   # Mean square error
-  cost = tf.reduce_sum(tf.pow(pred-Y, 2))/(2*N)
+  cost = tf.reduce_sum(tf.pow(pred-Y, 2), name="output_cost")/(2*N)
 
   # Use a Gradient descent to minimize the cost
   optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
@@ -107,9 +107,7 @@ def main(argv=None):
 
       print("Optimization Finished!")
       training_cost = sess.run(cost, feed_dict={X: train_X, Y: train_Y, N: n_samples})
-
-      tf.add(cost, 0, name="output_cost")   # dumb way to add the cost to the graph, any better way ?
-      tf.add(training_cost, 0, name="output_training_cost") # dumb way to save the training cost value to the graph, any better way ?
+      tf.convert_to_tensor(training_cost, name="output_training_cost") #way to save the training cost value to the graph, any better way ?
 
       print("Training cost=", training_cost, "W=", sess.run(W), "b=", sess.run(b), '\n')
 
