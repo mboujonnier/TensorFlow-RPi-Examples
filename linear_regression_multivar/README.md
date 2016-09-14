@@ -1,6 +1,6 @@
 ### Linear Regression example
 
-This folder contains a normalized multi-variables Linear Regression example usign a Gradient Descent
+This folder contains a normalized multi-variables Linear Regression example using a Gradient Descent
 
 #### Prerequisistes
 
